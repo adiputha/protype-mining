@@ -24,7 +24,9 @@ import {
 import { HomeIcon as HomeIconSolid, UserGroupIcon as UserGroupIconSolid } from "@heroicons/react/24/solid"
 import MainDashboard from "./MainDashboard"
 import ClientManagement from "./ClientManagement"
+import ApplicationManagement from "./ApplicationManagement"
 import ClientRegistration from "./ClientRegistration"
+import ApplicationRegistration from "./ApplicationRegistration"
 import ClientTypeMaster from "./master-data/ClientTypeMaster"
 import CountryMaster from "./master-data/CountryMaster"
 import ProvinceMaster from "./master-data/ProvinceMaster"
@@ -42,6 +44,7 @@ const MiningDashboard = () => {
   const [sampleOpen, setSampleOpen] = useState(false)
   const [adminModuleOpen, setAdminModuleOpen] = useState(false)
   const [masterItemsOpen, setMasterItemsOpen] = useState(false)
+  const [applicationsOpen, setApplicationsOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const { theme, setTheme } = useTheme()
   const [currentView, setCurrentView] = useState("dashboard")
@@ -71,12 +74,12 @@ const MiningDashboard = () => {
       href: "#",
     },
     {
-      label: "Sample",
+      label: "Applications",
       icon: DocumentTextIcon,
       href: "#",
       hasSubmenu: true,
       submenu: [
-        { label: "Sample", href: "#" },
+        { label: "Application Management", href: "#", view: "application-management" },
         { label: "Sample", href: "#" },
       ],
     },
@@ -145,6 +148,10 @@ const MiningDashboard = () => {
         return <ClientManagement onNewClient={() => setCurrentView("client-registration")} />
       case "client-registration":
         return <ClientRegistration onBack={() => setCurrentView("client-management")} />
+      case "application-management":
+        return <ApplicationManagement onNewApplication={() => setCurrentView("application-registration")} />
+      case "application-registration":
+        return <ApplicationRegistration onBack={() => setCurrentView("application-management")} />
       case "client-type-master":
         return <ClientTypeMaster />
       case "country-master":
@@ -229,6 +236,8 @@ const MiningDashboard = () => {
                             setCurrentView(item.view)
                           } else if (item.label === "Sample" && item.hasSubmenu) {
                             setSampleOpen(!sampleOpen)
+                          } else if (item.label === "Applications" && item.hasSubmenu) {
+                            setApplicationsOpen(!applicationsOpen)
                           } else if (item.label === "Admin Module" && item.hasSubmenu) {
                             setAdminModuleOpen(!adminModuleOpen)
                           }
@@ -244,6 +253,7 @@ const MiningDashboard = () => {
                               <ChevronDownIcon
                                 className={`h-4 w-4 ml-auto transition-transform ${
                                   (item.label === "Sample" && sampleOpen) ||
+                                  (item.label === "Applications" && applicationsOpen) ||
                                   (item.label === "Admin Module" && adminModuleOpen)
                                     ? "rotate-180"
                                     : ""
@@ -259,8 +269,10 @@ const MiningDashboard = () => {
                     {sidebarOpen && item.hasSubmenu && (
                       <Collapsible
                         open={
-                          item.label === "Sample" ? sampleOpen : item.label === "Admin Module" ? adminModuleOpen : false
-                        }
+                                item.label === "Sample" ? sampleOpen : 
+                                item.label === "Applications" ? applicationsOpen :
+                                item.label === "Admin Module" ? adminModuleOpen : false
+                            }
                       >
                         <CollapsibleContent className="pl-4 space-y-1">
                           {item.submenu?.map((subItem, subIndex) =>
