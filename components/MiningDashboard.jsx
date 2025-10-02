@@ -69,11 +69,6 @@ const MiningDashboard = () => {
       view: "client-management",
     },
     {
-      label: "Sample",
-      icon: ClipboardDocumentListIcon,
-      href: "#",
-    },
-    {
       label: "Applications",
       icon: DocumentTextIcon,
       href: "#",
@@ -187,7 +182,7 @@ const MiningDashboard = () => {
           <div
             className={`${
               sidebarOpen ? "w-80" : "w-16"
-            } transition-all duration-300 bg-card shadow-lg flex flex-col border-r border-border`}
+            } transition-all duration-300 bg-card shadow-lg flex flex-col border-r border-border fixed left-0 top-0 bottom-0 z-50`}
           >
             {/* Sidebar Header */}
             <div className="p-4 border-b border-border">
@@ -364,7 +359,7 @@ const MiningDashboard = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col">
+          <div className={`flex-1 flex flex-col ${sidebarOpen ? "ml-80" : "ml-16"} transition-all duration-300`}>
             {/* Top Navigation */}
             <header className="sticky top-0 z-10 bg-card shadow-md border-b border-border">
               <div className="flex items-center justify-between px-4 py-3 lg:px-8">
