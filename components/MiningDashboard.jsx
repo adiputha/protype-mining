@@ -75,7 +75,6 @@ const MiningDashboard = () => {
       hasSubmenu: true,
       submenu: [
         { label: "Application Management", href: "#", view: "application-management" },
-        { label: "Sample", href: "#" },
       ],
     },
     {

@@ -783,6 +783,21 @@ const ClientRegistration = ({ onBack }) => {
                     placeholder="Select Client Type"
                     searchPlaceholder="Search client types..."
                   />
+                  
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Client Sub Type
+                  </label>
+                  <SearchableSelect
+                    options={getClientTypeOptions()}
+                    value={formData.clientType}
+                    onValueChange={handleClientTypeChange}
+                    displayValue={formData.clientType}
+                    placeholder="Select Client Sub Type"
+                    searchPlaceholder="Search client sub types..."
+                  />
+                  
                 </div>
               </div>
             </div>

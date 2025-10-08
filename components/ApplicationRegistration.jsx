@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeftIcon, Calendar, Search, Plus, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Stepper, Step, Typography } from "@material-tailwind/react";
+import { Input } from "./ui/input";
+import SearchableSelect from "./ui/searchable-select";
+import { masterDataService } from "@/lib/masterDataService";
 
 export default function ApplicationRegistration({ onBack }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,9 +21,38 @@ export default function ApplicationRegistration({ onBack }) {
     clientCode: "",
     clientName: "",
     mineralCategory: "",
+    mineralSubCategory: "",
     mineralName: "",
     rate: "",
   });
+
+  const [masterData, setMasterData] = useState({
+    countries: [],
+    provinces: [],
+    districts: [],
+    dsDivisions: [],
+    cities: [],
+    titles: [],
+    taxTypes: [],
+    attachmentTypes: [],
+    statuses: [],
+    postalCodes: [],
+  });
+
+  useEffect(() => {
+    setMasterData({
+      countries: masterDataService.getCountries(),
+      provinces: masterDataService.getProvinces(),
+      districts: masterDataService.getDistricts(),
+      dsDivisions: masterDataService.getDSDivisions(),
+      cities: masterDataService.getCities(),
+      titles: masterDataService.getTitles(),
+      taxTypes: masterDataService.getTaxTypes(),
+      attachmentTypes: masterDataService.getAttachmentTypes(),
+      statuses: masterDataService.getStatuses(),
+      postalCodes: masterDataService.getPostalCodes(),
+    });
+  }, []);
 
   const [receipts, setReceipts] = useState([
     {
@@ -99,6 +131,7 @@ export default function ApplicationRegistration({ onBack }) {
       clientCode: "",
       clientName: "",
       mineralCategory: "",
+      mineralSubCategory: "",
       mineralName: "",
       rate: "",
     });
@@ -114,7 +147,7 @@ export default function ApplicationRegistration({ onBack }) {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         {/* Back Button */}
         <div className="mb-6">
@@ -188,8 +221,8 @@ export default function ApplicationRegistration({ onBack }) {
       </div>
 
       {/* Step Indicator */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="w-full py-8 mb-12 px-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sticky top-0 z-10">
+        <div className="w-full py-4 mb-12 px-10">
           <Stepper
             activeStep={currentStep - 1}
             lineClassName="bg-gray-200 dark:bg-gray-700"
@@ -226,8 +259,10 @@ export default function ApplicationRegistration({ onBack }) {
             ))}
           </Stepper>
         </div>
-        {/* <div className="mt-8"> */}
+        </div>
+
         {/* Step Content */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         {currentStep === 1 && (
           <div className="space-y-6">
             {/* Application Categorization */}
@@ -237,57 +272,63 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Title Code
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={[
+                      { value: "TC001", label: "TC001" },
+                      { value: "TC002", label: "TC002" },
+                    ]}
                     value={formData.titleCode}
-                    onChange={(e) =>
-                      handleInputChange("titleCode", e.target.value)
+                    onValueChange={(value) =>
+                      handleInputChange("titleCode", value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  >
-                    <option value="">Select a Title Code</option>
-                    <option value="TC001">TC001</option>
-                    <option value="TC002">TC002</option>
-                  </select>
+                    displayValue={formData.titleCode}
+                    placeholder="Select a Title Code"
+                    searchPlaceholder="Search title codes..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Category
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={[
+                      { value: "Mining", label: "Mining" },
+                      { value: "Quarrying", label: "Quarrying" },
+                    ]}
                     value={formData.category}
-                    onChange={(e) =>
-                      handleInputChange("category", e.target.value)
+                    onValueChange={(value) =>
+                      handleInputChange("category", value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  >
-                    <option value="">Select a Category</option>
-                    <option value="Mining">Mining</option>
-                    <option value="Quarrying">Quarrying</option>
-                  </select>
+                    displayValue={formData.category}
+                    placeholder="Select a Category"
+                    searchPlaceholder="Search categories..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Region
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={[
+                      { value: "Western", label: "Western" },
+                      { value: "Central", label: "Central" },
+                    ]}
                     value={formData.region}
-                    onChange={(e) =>
-                      handleInputChange("region", e.target.value)
+                    onValueChange={(value) =>
+                      handleInputChange("region", value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  >
-                    <option value="">Region</option>
-                    <option value="Western">Western</option>
-                    <option value="Central">Central</option>
-                  </select>
+                    displayValue={formData.region}
+                    placeholder="Select a Region"
+                    searchPlaceholder="Search regions..."
+                  />
                 </div>
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-gray-700" />
 
             {/* Application Details */}
             <div>
@@ -296,29 +337,29 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-2 gap-6 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Manual Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.manualNumber}
                     onChange={(e) =>
                       handleInputChange("manualNumber", e.target.value)
                     }
                     placeholder="Manual Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Application Date
                   </label>
                   <div className="relative">
-                    <input
+                    <Input
                       type="text"
                       value="Application Date - Auto Filled"
                       readOnly
-                      className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg pr-10 text-gray-500"
+                      className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pr-10 text-gray-500 dark:text-gray-400 text-sm"
                     />
                     <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   </div>
@@ -326,50 +367,50 @@ export default function ApplicationRegistration({ onBack }) {
               </div>
               <div className="grid grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Reference Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.referenceNumber}
                     onChange={(e) =>
                       handleInputChange("referenceNumber", e.target.value)
                     }
                     placeholder="Reference Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Client Code
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={[
+                      { value: "CL001", label: "CL001" },
+                      { value: "CL002", label: "CL002" },
+                    ]}
                     value={formData.clientCode}
-                    onChange={(e) =>
-                      handleInputChange("clientCode", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  >
-                    <option value="">Client Code</option>
-                    <option value="CL001">CL001</option>
-                    <option value="CL002">CL002</option>
-                  </select>
+                    onChange={(value) => handleInputChange("clientCode", value)}
+                    displayValue={formData.clientCode}
+                    placeholder="Select a Client Code"
+                    searchPlaceholder="Search client codes..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Client Name
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value="Client Name - Auto Filled"
                     readOnly
-                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-gray-700" />
 
             {/* Receipt Details */}
             <div>
@@ -382,7 +423,7 @@ export default function ApplicationRegistration({ onBack }) {
                   className="mb-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700/50"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-medium text-gray-700">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Receipt {index + 1}
                     </h4>
                     {receipts.length > 1 && (
@@ -396,11 +437,11 @@ export default function ApplicationRegistration({ onBack }) {
                   </div>
                   <div className="grid grid-cols-3 gap-6 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                         Receipt Number
                       </label>
                       <div className="relative">
-                        <input
+                        <Input
                           type="text"
                           value={receipt.receiptNumber}
                           onChange={(e) =>
@@ -411,46 +452,46 @@ export default function ApplicationRegistration({ onBack }) {
                             )
                           }
                           placeholder="Search Receipt Number"
-                          className="w-full px-3 py-2 bg-white border border-gray-300 dark:border-gray-600 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                          className="w-full px-3 py-2 bg-white border border-gray-300 dark:border-gray-600 rounded-md pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-sm"
                         />
                         <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                         Receipt Date
                       </label>
                       <div className="relative">
-                        <input
+                        <Input
                           type="text"
                           value="Receipt Date - Auto Filled"
                           readOnly
-                          className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md pr-10 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                          className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md pr-10 text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                         />
                         <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                         Receipt Amount
                       </label>
-                      <input
+                      <Input
                         type="text"
                         value="Receipt Amount - Auto Filled"
                         readOnly
-                        className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                        className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                       Client Name
                     </label>
-                    <input
+                    <Input
                       type="text"
                       value="Client Name - Auto Filled"
                       readOnly
-                      className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                     />
                   </div>
                 </div>
@@ -458,15 +499,15 @@ export default function ApplicationRegistration({ onBack }) {
               <div className="flex justify-end">
                 <button
                   onClick={addReceipt}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600"
+                  className="flex items-center gap-2 px-2 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 text-sm"
                 >
                   Add More
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3 h-3" />
                 </button>
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-gray-700" />
 
             {/* Minerals */}
             <div>
@@ -475,58 +516,68 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-3 gap-6 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Mineral Category
                   </label>
-                  <select
+                  <SearchableSelect
+                    options={[
+                      { value: "CAT1", label: "Category 1" },
+                      { value: "CAT2", label: "Category 2" },
+                    ]}
                     value={formData.mineralCategory}
-                    onChange={(e) =>
-                      handleInputChange("mineralCategory", e.target.value)
+                    onChange={(value) =>
+                      handleInputChange("mineralCategory", value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  >
-                    <option value="">Mineral Category</option>
-                    <option value="CAT1">Category 1</option>
-                    <option value="CAT2">Category 2</option>
-                  </select>
+                    displayValue={formData.mineralCategory}
+                    placeholder="Select a Mineral Category"
+                    searchPlaceholder="Search mineral categories..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Mineral Category
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Mineral Sub Category
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
-                    <option value="">Mineral Category</option>
-                    <option value="CAT1">Category 1</option>
-                    <option value="CAT2">Category 2</option>
-                  </select>
+                  <SearchableSelect
+                    options={[
+                      { value: "SCAT1", label: " Sub Category 1" },
+                      { value: "SCAT2", label: "Sub Category 2" },
+                    ]}
+                    value={formData.mineralSubCategory}
+                    onChange={(value) =>
+                      handleInputChange("mineralSubCategory", value)
+                    }
+                    displayValue={formData.mineralSubCategory}
+                    placeholder="Select a Mineral Sub-Category"
+                    searchPlaceholder="Search mineral sub-categories..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Rate (%)
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value="Rate (%) - Auto Filled"
                     readOnly
-                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Mineral Name
                 </label>
-                <select
+                <SearchableSelect
                   value={formData.mineralName}
-                  onChange={(e) =>
-                    handleInputChange("mineralName", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                >
-                  <option value="">Mineral Name</option>
-                  <option value="Gold">Gold</option>
-                  <option value="Silver">Silver</option>
-                </select>
+                  onChange={(value) => handleInputChange("mineralName", value)}
+                  options={[
+                    { value: "Gold", label: "Gold" },
+                    { value: "Silver", label: "Silver" },
+                  ]}
+                  displayValue={formData.mineralName}
+                  placeholder="Select a Mineral Name"
+                  searchPlaceholder="Search mineral names..."
+                />
               </div>
             </div>
           </div>
@@ -541,145 +592,62 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Deed Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="Deed Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Plan Number
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="Plan Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Lot Number
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    placeholder="Lot Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    placeholder="Surveyor Registration Number"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Deed Date
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value="Deed Date"
-                      readOnly
-                      className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg pr-10 text-gray-500"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Plan Date
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value="Plan Date"
-                      readOnly
-                      className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg pr-10 text-gray-500"
-                    />
-                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <hr className="border-gray-200" />
-
-            {/* Ownership */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Ownership
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Ownership
-                  </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
-                    <option value="">Ownership</option>
-                    <option value="owned">Owned</option>
-                    <option value="leased">Leased</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <hr className="border-gray-200" />
-
-            {/* Surveyor Details */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Surveyor Details
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Name Of the Surveyor
-                  </label>
-                  <input
-                    type="text"
-                    value="Client Name - Auto Filled"
-                    readOnly
-                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Surveyor Registration Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Lot Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Name Of the Notary Public
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value="Client Name - Auto Filled"
                     readOnly
-                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Notary Registration Number
                   </label>
-                  <input
+                  <Input
                     type="text"
-                    placeholder="Lot Number"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    placeholder="Notary Registration Number"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-gray-700" />
 
             {/* Boundaries */}
             <div>
@@ -688,43 +656,43 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     North By
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="North By"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     East By
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="East By"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     South By
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="South By"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     West By
                   </label>
-                  <input
+                  <Input
                     type="text"
                     placeholder="West By"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                   />
                 </div>
               </div>
@@ -741,53 +709,67 @@ export default function ApplicationRegistration({ onBack }) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Province
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
-                    <option value="">Select a Province</option>
-                  </select>
+                  <SearchableSelect
+                    options={masterData.provinces.map((province) => ({
+                      value: province.name,
+                      label: province.name,
+                    }))}
+                    onChange={(value) => handleInputChange("province", value)}
+                    placeholder="Select a Province"
+                    searchPlaceholder="Search provinces..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     District
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
-                    <option value="">Select a District</option>
-                  </select>
+                  <SearchableSelect
+                    options={masterData.districts.map((district) => ({
+                      value: district.name,
+                      label: district.name,
+                    }))}
+                    onChange={(value) => handleInputChange("district", value)}
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Divisional Secretariat
                   </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
-                    <option value="">Select a Divisional Secretariat</option>
-                  </select>
+                 <SearchableSelect
+                    options={masterData.dsDivisions.map((ds) => ({
+                      value: ds.name,
+                      label: ds.name,
+                    }))}
+                    onChange={(value) => handleInputChange("dsDivision", value)}
+                  />
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Grama Niladari Division
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
+                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm">
                   <option value="">Select a Grama Niladari Division</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Village
                 </label>
                 <input
                   type="text"
                   placeholder="Village"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Expected Inspection Date
                 </label>
                 <div className="relative">
@@ -795,7 +777,7 @@ export default function ApplicationRegistration({ onBack }) {
                     type="text"
                     value="Selected Inspection Date"
                     readOnly
-                    className="w-full px-4 py-2 bg-gray-100 border border-gray-200 rounded-lg pr-10 text-gray-500"
+                    className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg pr-10 text-gray-500 dark:text-gray-400 text-sm"
                   />
                   <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
@@ -804,139 +786,139 @@ export default function ApplicationRegistration({ onBack }) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Land Owner
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white">
+                <select className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm">
                   <option value="">Select a Land Owner</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Land Owner Name
                 </label>
                 <input
                   type="text"
                   value="Land Owner Name - Auto Filled"
                   readOnly
-                  className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                  className="w-full px-3 py-2 bg-muted dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 cursor-not-allowed text-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Name Of the Land
                 </label>
                 <input
                   type="text"
                   placeholder="Name Of the Land"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Approved Area
                 </label>
                 <input
                   type="text"
                   placeholder="Approved Area"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Extend of Land
                 </label>
                 <input
                   type="text"
                   placeholder="Extend of Land"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   River
                 </label>
                 <input
                   type="text"
                   placeholder="River"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Mining Depth
                 </label>
                 <input
                   type="text"
                   placeholder="Mining Depth"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Mining Hight
                 </label>
                 <input
                   type="text"
                   placeholder="Mining Hight"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Approve HE
                 </label>
                 <input
                   type="text"
-                  placeholder="Lot Number"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  placeholder="Approve HE"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   E
                 </label>
                 <input
                   type="text"
                   placeholder="North/South position"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   N
                 </label>
                 <input
                   type="text"
                   placeholder="East/West position"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   GPS Device Number
                 </label>
                 <input
                   type="text"
                   placeholder="GPS Device Number"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                 />
               </div>
             </div>
 
-            <hr className="border-gray-200" />
+            <hr className="border-gray-200 dark:border-gray-700" />
 
             {/* GPS of Boundaries */}
             <div>
@@ -946,38 +928,38 @@ export default function ApplicationRegistration({ onBack }) {
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50">
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                       E
                     </label>
                     <input
                       type="text"
                       placeholder="North/South position"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                       N
                     </label>
                     <input
                       type="text"
                       placeholder="East/West position"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                       Remark
                     </label>
                     <input
                       type="text"
-                      placeholder="East By"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white"
+                      placeholder="Remark"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
                     />
                   </div>
                 </div>
                 <div className="flex justify-end">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 text-sm">
                     Add More
                     <Plus className="w-4 h-4" />
                   </button>
@@ -988,9 +970,91 @@ export default function ApplicationRegistration({ onBack }) {
         )}
 
         {currentStep === 4 && (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-semibold">Approval Details</h3>
-            <p className="text-gray-500 mt-2">Content coming soon...</p>
+          <div className="space-y-6">
+            {/* DS Approval Details */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                DS Approval Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Divisional Secretariat Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Divisional Secretariat Name"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Remark
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Remark"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <hr className="border-gray-200 dark:border-gray-700" />
+
+            {/* Access/ Temporary/ Stock Piling Land */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Access/ Temporary/ Stock Piling Land
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Ownership
+                  </label>
+                  <SearchableSelect
+                    options={[
+                      { value: "owned", label: "Owned" },
+                      { value: "leased", label: "Leased" },
+                    ]}
+                    placeholder="Ownership"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Owner Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Owner Name"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Plan Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Plan Number"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Lot Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Lot Number"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-white text-sm"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -1012,7 +1076,7 @@ export default function ApplicationRegistration({ onBack }) {
 
         {/* Right side buttons */}
         <div className="flex gap-4">
-          {currentStep < 3 ? (
+          {currentStep < 4 ? (
             // Steps 1-3: Next, Clear, Close
             <>
               <Button
